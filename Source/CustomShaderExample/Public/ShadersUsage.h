@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "ShadersDeclaration.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "PositionVertexBuffer.h"
 #include "ShadersUsage.generated.h"
 
 
@@ -49,6 +50,8 @@ private:
 
 	//TShaderMapRef<FVertexShaderExample> MyVS(ShaderMap);
 	//TShaderMapRef<FPixelShaderExample> MyPS(ShaderMap);
+
+	FVertexBufferRHIRef vertBuf;
 
 	void SaveScreenshot(FRHICommandListImmediate& RHICmdList);
 };

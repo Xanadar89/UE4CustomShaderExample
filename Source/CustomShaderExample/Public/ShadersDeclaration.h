@@ -26,7 +26,14 @@ typedef TUniformBufferRef<FPixelShaderVariableParameters> FPixelShaderVariablePa
 struct FTextureVertex
 {
 	FVector4 Position;
-	FVector2D UV;
+	FColor Color;
+
+	friend FArchive& operator<<(FArchive& Ar, FTextureVertex& V)
+	{
+		Ar << V.Position;
+		Ar << V.Color;
+		return Ar;
+	}
 };
 
 
@@ -43,8 +50,8 @@ public:
 	{
 		FVertexDeclarationElementList Elements;
 		uint32 Stride = sizeof(FTextureVertex);
-		Elements.Add(FVertexElement(0, STRUCT_OFFSET(FTextureVertex, Position), VET_Float4, 0, Stride));
-		Elements.Add(FVertexElement(0, STRUCT_OFFSET(FTextureVertex, UV), VET_Float2, 1, Stride));
+		Elements.Add(FVertexElement(0, STRUCT_OFFSET(FTextureVertex, Position), VET_Float3, 0, Stride));
+		Elements.Add(FVertexElement(0, STRUCT_OFFSET(FTextureVertex, Color), VET_Color, 1, Stride));
 		VertexDeclarationRHI = RHICreateVertexDeclaration(Elements);
 	}
 

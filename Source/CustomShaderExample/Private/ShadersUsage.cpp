@@ -3,10 +3,27 @@
 #include "Runtime/RHI/Public/RHIUtilities.h"
 #include "Engine/Texture2D.h"
 #include "PipelineStateCache.h"
+#include "Components.h"
+#include "StaticMeshVertexData.h"
 
 //It seems to be the convention to expose all vertex declarations as globals, and then reference them as externs in the headers where they are needed.
 //It kind of makes sense since they do not contain any parameters that change and are purely used as their names suggest, as declarations :)
 TGlobalResource<FVertexDeclarationExample> GTextureVertexDeclaration;
+
+
+class FPositionVertexData :
+	public TStaticMeshVertexData<FTextureVertex>
+{
+public:
+	FPositionVertexData(bool InNeedsCPUAccess = false)
+		: TStaticMeshVertexData<FTextureVertex>(InNeedsCPUAccess)
+	{
+	}
+};
+
+
+FPositionVertexData* data;
+
 
 AShaderUsageExample::AShaderUsageExample()
 {
@@ -93,6 +110,44 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 		return;
 	}
 
+
+	if (!vertBuf.IsValid()) {
+		// Draw a fullscreen quad that we can run our pixel shader on
+		TArray<FTextureVertex> Vertices;
+
+		FTextureVertex vert;
+		vert.Position = FVector(-1.0f, 1.0f, 0);
+		vert.Color = FColor::Red;
+		Vertices.Add(vert);
+
+		FTextureVertex vert1;
+		vert1.Position = FVector4(1.0f, 1.0f, 0, 1.0f);
+		vert1.Color = FColor::Green;
+		Vertices.Add(vert1);
+
+		FTextureVertex vert2;
+		vert2.Position = FVector4(-1.0f, -1.0f, 0, 1.0f);
+		vert2.Color = FColor::Blue;
+		Vertices.Add(vert2);
+
+
+		data = new FPositionVertexData();
+		data->ResizeBuffer(Vertices.Num());
+
+		memcpy(data->GetDataPointer(), Vertices.GetData(), sizeof(FTextureVertex) * Vertices.Num());
+
+		//vertBuf->Init(Vertices, false);
+		//vertBuf->InitRHI();
+		
+		FResourceArrayInterface* RESTRICT ResourceArray = data->GetResourceArray();
+		FRHIResourceCreateInfo info (ResourceArray);
+		info.bWithoutNativeResource = false;
+
+		//auto t = info.ResourceArray->GetResourceDataSize();
+
+		vertBuf = RHICreateVertexBuffer(sizeof(FTextureVertex) * Vertices.Num(), BUF_Static, info);
+	}
+
 	//FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 
 	//If our input texture reference has changed, we need to recreate our SRV
@@ -126,7 +181,7 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 		GraphicsPSOInit.RasterizerState		= TStaticRasterizerState<>::GetRHI();
 		GraphicsPSOInit.DepthStencilState	= TStaticDepthStencilState<false, CF_Always>::GetRHI();
 		GraphicsPSOInit.PrimitiveType = PT_TriangleStrip;
-		GraphicsPSOInit.BoundShaderState.VertexDeclarationRHI = nullptr;// GTextureVertexDeclaration.VertexDeclarationRHI;
+		GraphicsPSOInit.BoundShaderState.VertexDeclarationRHI = GTextureVertexDeclaration.VertexDeclarationRHI;
 		GraphicsPSOInit.BoundShaderState.VertexShaderRHI	= GETSAFERHISHADER_VERTEX(*VertexShader);
 		GraphicsPSOInit.BoundShaderState.PixelShaderRHI		= GETSAFERHISHADER_PIXEL(*PixelShader);
 		
@@ -140,25 +195,13 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 			0, 0, 0.f,
 			CurrentTexture->GetSizeX(), CurrentTexture->GetSizeY(), 1.f);
 
-		RHICmdList.DrawPrimitive(0, 2, 0);
+		
+		RHICmdList.SetStreamSource(0, vertBuf, 0);
+
+		RHICmdList.DrawPrimitive(0, 1, 0);
 	} 
 	RHICmdList.EndRenderPass();
 
-
-
-
-	
-
-	// Draw a fullscreen quad that we can run our pixel shader on
-	FTextureVertex Vertices[4];
-	Vertices[0].Position = FVector4(-1.0f, 1.0f, 0, 1.0f);
-	Vertices[1].Position = FVector4(1.0f, 1.0f, 0, 1.0f);
-	Vertices[2].Position = FVector4(-1.0f, -1.0f, 0, 1.0f);
-	Vertices[3].Position = FVector4(1.0f, -1.0f, 0, 1.0f);
-	Vertices[0].UV = FVector2D(0, 0);
-	Vertices[1].UV = FVector2D(1, 0);
-	Vertices[2].UV = FVector2D(0, 1);
-	Vertices[3].UV = FVector2D(1, 1);
 
 	//DrawPrimitiveUP(RHICmdList, PT_TriangleStrip, 2, Vertices, sizeof(Vertices[0]));
 
