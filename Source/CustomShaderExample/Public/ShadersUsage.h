@@ -4,6 +4,7 @@
 #include "ShadersDeclaration.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "PositionVertexBuffer.h"
+#include "GameFramework/Actor.h"
 #include "ShadersUsage.generated.h"
 
 

@@ -5,6 +5,9 @@
 #include "PipelineStateCache.h"
 #include "Components.h"
 #include "StaticMeshVertexData.h"
+#include "Engine/World.h"
+#include "Engine/StaticMesh.h"
+
 
 //It seems to be the convention to expose all vertex declarations as globals, and then reference them as externs in the headers where they are needed.
 //It kind of makes sense since they do not contain any parameters that change and are purely used as their names suggest, as declarations :)
@@ -72,8 +75,8 @@ void AShaderUsageExample::ExecutePixelShader(UTextureRenderTarget2D* RenderTarge
 		bMustRegenerateSRV = true;
 
 	//Now set our runtime parameters!
-	VariableParameters.EndColor = FVector4(EndColor.R / 255.0, EndColor.G / 255.0, EndColor.B / 255.0, EndColor.A / 255.0);
-	VariableParameters.TextureParameterBlendFactor = TextureParameterBlendFactor;
+	VariableParameters.WorldViewProj = FMatrix::Identity;
+	VariableParameters.TextureParameterBlendFactor = GetWorld()->TimeSeconds;
 
 	CurrentRenderTarget = RenderTarget;
 	TextureParameter = InputTexture;
@@ -130,6 +133,10 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 		vert2.Color = FColor::Blue;
 		Vertices.Add(vert2);
 
+		FTextureVertex vert3;
+		vert3.Position = FVector4(1.0f, -1.0f, 0, 1.0f);
+		vert3.Color = FColor::Yellow;
+		Vertices.Add(vert3);
 
 		data = new FPositionVertexData();
 		data->ResizeBuffer(Vertices.Num());
@@ -150,6 +157,7 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 
 	//FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 
+
 	//If our input texture reference has changed, we need to recreate our SRV
 	if (bMustRegenerateSRV)
 	{
@@ -167,8 +175,7 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 	// This is where the magic happens
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(FeatureLevel));
 	TShaderMapRef<FPixelShaderExample> PixelShader(GetGlobalShaderMap(FeatureLevel));
-
-
+	
 
 	CurrentTexture = CurrentRenderTarget->GetRenderTargetResource()->GetRenderTargetTexture();
 
@@ -198,7 +205,7 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 		
 		RHICmdList.SetStreamSource(0, vertBuf, 0);
 
-		RHICmdList.DrawPrimitive(0, 1, 0);
+		RHICmdList.DrawPrimitive(0, 2, 0);
 	} 
 	RHICmdList.EndRenderPass();
 

@@ -12,8 +12,8 @@ END_GLOBAL_SHADER_PARAMETER_STRUCT()
 
 //This buffer is for variables that change very often (each frame for example)
 BEGIN_GLOBAL_SHADER_PARAMETER_STRUCT(FPixelShaderVariableParameters, )
+SHADER_PARAMETER(FMatrix, WorldViewProj)
 SHADER_PARAMETER(float, TextureParameterBlendFactor)
-SHADER_PARAMETER(FVector4, EndColor)
 END_GLOBAL_SHADER_PARAMETER_STRUCT()
 
 
