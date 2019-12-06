@@ -14,19 +14,6 @@
 TGlobalResource<FVertexDeclarationExample> GTextureVertexDeclaration;
 
 
-class FPositionVertexData :
-	public TStaticMeshVertexData<FTextureVertex>
-{
-public:
-	FPositionVertexData(bool InNeedsCPUAccess = false)
-		: TStaticMeshVertexData<FTextureVertex>(InNeedsCPUAccess)
-	{
-	}
-};
-
-
-FPositionVertexData* data;
-
 
 AShaderUsageExample::AShaderUsageExample()
 {
@@ -116,43 +103,40 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 
 	if (!vertBuf.IsValid()) {
 		// Draw a fullscreen quad that we can run our pixel shader on
-		TArray<FTextureVertex> Vertices;
 
 		FTextureVertex vert;
 		vert.Position = FVector(-1.0f, 1.0f, 0);
 		vert.Color = FColor::Red;
-		Vertices.Add(vert);
 
 		FTextureVertex vert1;
 		vert1.Position = FVector4(1.0f, 1.0f, 0, 1.0f);
 		vert1.Color = FColor::Green;
-		Vertices.Add(vert1);
 
 		FTextureVertex vert2;
 		vert2.Position = FVector4(-1.0f, -1.0f, 0, 1.0f);
 		vert2.Color = FColor::Blue;
-		Vertices.Add(vert2);
 
 		FTextureVertex vert3;
 		vert3.Position = FVector4(1.0f, -1.0f, 0, 1.0f);
 		vert3.Color = FColor::Yellow;
-		Vertices.Add(vert3);
 
-		data = new FPositionVertexData();
-		data->ResizeBuffer(Vertices.Num());
-
-		memcpy(data->GetDataPointer(), Vertices.GetData(), sizeof(FTextureVertex) * Vertices.Num());
 
 		//vertBuf->Init(Vertices, false);
 		//vertBuf->InitRHI();
 		
-		FResourceArrayInterface* RESTRICT ResourceArray = data->GetResourceArray();
-		FRHIResourceCreateInfo info (ResourceArray);
+		FRHIResourceCreateInfo info;
 		info.bWithoutNativeResource = false;
 
 		//auto t = info.ResourceArray->GetResourceDataSize();
 
-		vertBuf = RHICreateVertexBuffer(sizeof(FTextureVertex) * Vertices.Num(), BUF_Static, info);
+		vertBuf = RHICreateVertexBuffer(sizeof(FTextureVertex) * 4, BUF_Static | BUF_Transient, info);
+		void* VoidPtr = RHILockVertexBuffer(vertBuf, 0, sizeof(FTextureVertex) * 4, RLM_WriteOnly);
+		FTextureVertex* Vertices = (FTextureVertex*)VoidPtr;
+		Vertices[0] = vert;
+		Vertices[1] = vert1;
+		Vertices[2] = vert2;
+		Vertices[3] = vert3;
+		RHIUnlockVertexBuffer(vertBuf);
 	}
 
 	//FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
