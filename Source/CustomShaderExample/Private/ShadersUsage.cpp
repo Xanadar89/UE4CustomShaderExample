@@ -177,7 +177,7 @@ void AShaderUsageExample::ExecutePixelShaderInternal(FRHICommandListImmediate& R
 		GraphicsPSOInit.BoundShaderState.PixelShaderRHI		= GETSAFERHISHADER_PIXEL(*PixelShader);
 		
 
-		PixelShader->SetOutputTexture(RHICmdList, TextureParameterSRV);
+		PixelShader->SetSrvTexture(RHICmdList, TextureParameterSRV);
 		PixelShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 
 		SetGraphicsPipelineState(RHICmdList, GraphicsPSOInit);

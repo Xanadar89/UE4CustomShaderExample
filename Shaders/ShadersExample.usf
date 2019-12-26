@@ -20,7 +20,7 @@ void MainVertexShader(
 
 	Color = input.Color.rgb;
 
-	OutPosition = float4(input.Position, 1.0f);
+	OutPosition = float4(input.Position.xyz, 1.0f);
 }
 
 

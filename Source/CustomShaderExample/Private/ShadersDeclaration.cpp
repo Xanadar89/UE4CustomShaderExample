@@ -26,7 +26,7 @@ void FPixelShaderExample::SetUniformBuffers(FRHICommandList& RHICmdList,
 	SetUniformBufferParameter(RHICmdList, GetPixelShader(), GetUniformBufferParameter<FPixelShaderVariableParameters>(), VariableParametersBuffer);
 }
 
-void FPixelShaderExample::SetOutputTexture(	FRHICommandList& RHICmdList, FShaderResourceViewRHIRef TextureParameterSRV) 
+void FPixelShaderExample::SetSrvTexture(	FRHICommandList& RHICmdList, FShaderResourceViewRHIRef TextureParameterSRV) 
 {
 	FPixelShaderRHIParamRef PixelShaderRHI = GetPixelShader();
 
