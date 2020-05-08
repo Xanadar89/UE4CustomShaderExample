@@ -1,6 +1,5 @@
 #include "/Engine/Private/Common.ush"
 
-
 struct vs_in {
 	float4 Position : ATTRIBUTE0;
 	float4 Color : ATTRIBUTE1;
@@ -39,6 +38,6 @@ void MainPixelShader(
 
 
 	OutColor = float4(Color * frac(PSVariable.TextureParameterBlendFactor), 1.0f);
-    //OutColor = TextureParameter.Load(int3(sizeX * uv.x, sizeY * uv.y, 0));
+	//OutColor = TextureParameter.Load(int3(sizeX * uv.x, sizeY * uv.y, 0));
 	//OutColor = float4(uv.x, uv.y, 1.0f, 1.0f);
 }

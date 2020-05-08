@@ -21,14 +21,14 @@ void FPixelShaderExample::SetUniformBuffers(FRHICommandList& RHICmdList,
 
 	ConstantParametersBuffer = FPixelShaderConstantParametersRef::CreateUniformBufferImmediate(ConstantParameters, UniformBuffer_SingleDraw);
 	VariableParametersBuffer = FPixelShaderVariableParametersRef::CreateUniformBufferImmediate(VariableParameters, UniformBuffer_SingleDraw);
-
-	SetUniformBufferParameter(RHICmdList, GetPixelShader(), GetUniformBufferParameter<FPixelShaderConstantParameters>(), ConstantParametersBuffer);
-	SetUniformBufferParameter(RHICmdList, GetPixelShader(), GetUniformBufferParameter<FPixelShaderVariableParameters>(), VariableParametersBuffer);
+	
+	SetUniformBufferParameter(RHICmdList, RHICmdList.GetBoundPixelShader(), GetUniformBufferParameter<FPixelShaderConstantParameters>(), ConstantParametersBuffer);
+	SetUniformBufferParameter(RHICmdList, RHICmdList.GetBoundPixelShader(), GetUniformBufferParameter<FPixelShaderVariableParameters>(), VariableParametersBuffer);
 }
 
 void FPixelShaderExample::SetSrvTexture(	FRHICommandList& RHICmdList, FShaderResourceViewRHIRef TextureParameterSRV) 
 {
-	FPixelShaderRHIParamRef PixelShaderRHI = GetPixelShader();
+	FRHIPixelShader* PixelShaderRHI = RHICmdList.GetBoundPixelShader();
 
 	if (TextureParameter.IsBound()) { //This actually sets the shader resource view to the texture parameter in the shader :)
 		RHICmdList.SetShaderResourceViewParameter(PixelShaderRHI, TextureParameter.GetBaseIndex(), TextureParameterSRV);
@@ -37,10 +37,10 @@ void FPixelShaderExample::SetSrvTexture(	FRHICommandList& RHICmdList, FShaderRes
 
 void FPixelShaderExample::UnbindBuffers(FRHICommandList& RHICmdList) 
 {
-	FPixelShaderRHIParamRef PixelShaderRHI = GetPixelShader();
+	FRHIPixelShader* PixelShaderRHI = RHICmdList.GetBoundPixelShader();
 
 	if (TextureParameter.IsBound()) {
-		RHICmdList.SetShaderResourceViewParameter(PixelShaderRHI, TextureParameter.GetBaseIndex(), FShaderResourceViewRHIParamRef());
+		RHICmdList.SetShaderResourceViewParameter(PixelShaderRHI, TextureParameter.GetBaseIndex(), nullptr);
 	}
 }
 
@@ -53,3 +53,4 @@ void FPixelShaderExample::UnbindBuffers(FRHICommandList& RHICmdList)
 //                      ShaderType               ShaderFileName     Shader function name            Type
 IMPLEMENT_SHADER_TYPE(, FVertexShaderExample,	TEXT("/GameShaders/ShadersExample.usf"), TEXT("MainVertexShader"),	SF_Vertex);
 IMPLEMENT_SHADER_TYPE(, FPixelShaderExample,	TEXT("/GameShaders/ShadersExample.usf"), TEXT("MainPixelShader"),	SF_Pixel);
+

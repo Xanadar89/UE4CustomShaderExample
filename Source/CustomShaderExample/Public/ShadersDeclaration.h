@@ -99,14 +99,6 @@ public:
 		return true;
 	};
 
-	virtual bool Serialize(FArchive& Ar) override
-	{
-		bool bShaderHasOutdatedParams = FGlobalShader::Serialize(Ar);
-
-		Ar << TextureParameter;
-
-		return bShaderHasOutdatedParams;
-	}
 
 	//This function is required to let us bind our runtime surface to the shader using an SRV.
 	void SetSrvTexture(FRHICommandList& RHICmdList, FShaderResourceViewRHIRef TextureParameterSRV);
@@ -117,5 +109,5 @@ public:
 
 private:
 	//This is how you declare resources that are going to be made available in the HLSL
-	FShaderResourceParameter TextureParameter;
+	LAYOUT_FIELD(FShaderResourceParameter, TextureParameter);
 };
